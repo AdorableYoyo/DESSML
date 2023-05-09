@@ -1,12 +1,15 @@
 # DESSML : Data Efficiency Semi-Supervised Meta-Learning Elucidates Understudied Interspecies Molecular Interactions
 DESSML is a highly data-efficient semi-supervised meta-learning framework to investigate understudied interspecies metabolite-protein interactions (MPI). Knowledge of microbiome-human MPIs is crucial to understand the relationship between microbiome and human physiology and the evolution of an ecosystem. However, our understanding of interspecies MPIs is extremely poor due to experimental limitations. The paucity of experimental data hampers the application of machine learning to MPI predictions. DESSML successfully explores unlabeled data and transfers the information of intraspecies chemical-protein interactions to the interspecies MPI predictions. It achieves three times improvement in the prediction-recall over the baseline model. Using DESSML, we reveal novel MPIs that are validated by bioactivity assays and fill in missing links in microbiome-human interactions. DESSML is a general framework to explore previously unrecognized biological domains beyond the reach of present experimental techniques.
 
+<a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+
 # Architecture
 
 ![alt text](figure1.jpg "system overview")
-# Data download
 
-… 
+# Data download
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7915982.svg)](https://doi.org/10.5281/zenodo.7915982)
+
 
 # **Getting Started**
 
