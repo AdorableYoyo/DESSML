@@ -1,0 +1,27 @@
+{
+    "git.ignoreLimitWarning": true,
+    "python.pythonPath": "/raid/home/yoyowu/anaconda3/envs/ssl/bin/python",
+    "editor.formatOnSave": true,
+    "files.trimTrailingWhitespace": true,
+    "editor.rulers": [
+        88
+    ],
+    "editor.stopRenderingLineAfter": -1,
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": true,
+    "python.linting.flake8Args": [
+        "--max-line-length=88",
+        "--ignore=E203, W503"
+    ],
+    "python.linting.enabled": true,
+    "python.formatting.provider": "black",
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/*/**": true,
+        "**/.ipynb_checkpoints/**": true,
+        "**/__pycache__/**": true,
+        "**/Data/**": true,
+    },
+    "docker-explorer.autoRefreshInterval": 3000
+}
