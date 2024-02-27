@@ -453,7 +453,12 @@ if __name__ == "__main__":
     save_json(vars(opt), config_path)
     md_logger.info("model configurations saved to {}".format(config_path))
 
-    wandb.init(project="microbio_meta",config=opt)
+    wandb.init(project="microbio_meta",config=opt, name=opt.exp_id)
+    wandb.define_metric("dev AUPRC",summary="max")
+    wandb.define_metric("dev AUROC",summary="max")
+    wandb.define_metric("test AUPRC",summary="max")
+    wandb.define_metric("test AUROC",summary="max")
+
     wandb.watch(s_model, log="all")
     wandb.watch(t_model, log="all")
     # ---------- set up data ----------

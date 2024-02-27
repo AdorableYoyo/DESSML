@@ -147,6 +147,8 @@ class MolecularGraphCoupler(nn.Module):
             )
             if gin_config["checkpoint"] is not None:
                 self.ligandEmbedding.from_pretrained(gin_config["checkpoint"])
+                print("successfully loaded pretrained model from{}".format(gin_config["checkpoint"]))
+                self.logger.info("successfully loaded pretrained model from{}".format(gin_config["checkpoint"]))
         else:
             raise ValueError(
                 f"The gnn_type {gnn_type} is illegal. Should be 'gin' or 'nf'."
@@ -221,7 +223,7 @@ class MolecularGraphCoupler(nn.Module):
             logits = self.continuous_predictor(interaction_vector)
         self.logger.debug("MolecularGraphCoupler: logits {}".format(logits.size()))
         if self.get_embeddings:
-            return interaction_vector
+            return ligand_vector
         return logits
 
 

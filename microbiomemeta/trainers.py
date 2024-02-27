@@ -275,7 +275,11 @@ class MPLTrainer(Trainer):
         best_target_metric = -np.inf
         best_epoch = 0
         batch_size = self.batch_size
-        batch_per_epoch = int(np.floor(len(unlabeled_pairs) / batch_size))
+        if len(unlabeled_pairs)>len(train_pairs):
+            batch_per_epoch = int(np.floor(len(train_pairs) / batch_size))
+        else:
+            batch_per_epoch = int(np.floor(len(unlabeled_pairs) / batch_size))
+
         record_dict = defaultdict(list)
         print("Epoch\tData\tAcc\tF1\tAUC\tAUPR")
 

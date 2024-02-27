@@ -39,18 +39,19 @@ python -m microbiomemeta.finetuning \
     > run_logs/${exp_id}.log 2>&1 &
 
 # Notes on usage of different experiments
-#Exp1 : train chembl-> test on hmdb
+#Exp1 OOD DTI :
+# --train_datapath Data/DTI/chembl_train1.tsv \
+# --dev_datapath Data/DTI/chembl_dev1.tsv \
+# --test_datapath Data/DTI/DTI_test_x22102.tsv \
+# 1,2,3 are the three folds for the cross validation , please repeat 3 times and take the average as the final score
+
+#Exp2 Hidden human MPI :
 # --train_datapath Data/ChEMBL29/all_Chembl29.tsv \
 # --dev_datapath Data/HMDB/Feb_13_23_dev_test/dev_47.tsv \
 # --test_datapath Data/HMDB/Feb_13_23_dev_test/test_47.tsv \
-
-#Exp2 : train chembl-> test on njs16
-# --train_datapath Data/ChEMBL29/all_Chembl29.tsv \
-# --dev_datapath Data/NJS16/Feb_2_23_dev_test/dev_27.tsv \
-# --test_datapath Data/NJS16/Feb_2_23_dev_test/test_27.tsv \
 # 27,37,47 are the three folds for the cross validation , please repeat 3 times and take the average as the final score
 
-#Exp3 : train combined-> test on literature dataset
+#Exp3 Zero-shot microbiome-human MPI:
 # --train_datapath Data/Combined/activities/combined_all/train_300.tsv \
 # --dev_datapath Data/Combined/activities/combined_all/dev_300.tsv \
 # --test_datapath Data/TestingSetFromPaper/activities_nolipids.txt \

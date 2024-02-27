@@ -11,4 +11,4 @@ python -m microbiomemeta.prediction \
     --num_threads 8 \
     --log INFO \
 > run_logs/pred_on_amine_meta.log 2>&1 &
-# --get_embeddings ( comment out if embeddings are needed for ouput)
+# --get_embeddings ( comment out if chemical embeddings are needed for ouput)

@@ -25,7 +25,16 @@ python -m microbiomemeta.mpl_finetune \
 
 
 # Notes on usage of different experiments
-#Exp1 : train chembl-> test on hmdb
+#Exp1 OOD DTI :
+# --train_datapath Data/DTI/chembl_train1.tsv \
+# --dev_datapath Data/DTI/chembl_dev1.tsv \
+# --test_datapath Data/DTI/DTI_test_x22102.tsv \
+# --ul_datapath Data/DTI/DTI_target_sam_unlabeled_x53502.tsv \
+# 1,2,3 are the three folds for the cross validation , please repeat 3 times and take the average as the final score
+    # --albert_checkpoint trained_model/stage1_trained/DTI_fold_1_DISAE_model_state_dict_0.pth
+    # --albert_checkpoint  ... 2, 3
+
+#Exp2 Hidden human MPI :
 # --train_datapath Data/ChEMBL29/all_Chembl29.tsv \
 # --dev_datapath Data/HMDB/Feb_13_23_dev_test/dev_47.tsv \
 # --test_datapath Data/HMDB/Feb_13_23_dev_test/test_47.tsv \
@@ -34,16 +43,8 @@ python -m microbiomemeta.mpl_finetune \
     # --albert_checkpoint trained_model/stage1_trained/DISAE_tr_chembl_te_hmdb_47.pth
     # --albert_checkpoint  ... 37 ,27
 
-#Exp2 : train chembl-> test on njs16
-# --train_datapath Data/ChEMBL29/all_Chembl29.tsv \
-# --dev_datapath Data/NJS16/Feb_2_23_dev_test/dev_27.tsv \
-# --test_datapath Data/NJS16/Feb_2_23_dev_test/test_27.tsv \
-# --ul_datapath Data/new_unlabeled_data_2023/NJS16_target_sample.tsv \
-# 27,37,47 are the three folds for the cross validation , please repeat 3 times and take the average as the final score
-    # --albert_checkpoint trained_model/stage1_trained/DISAE_tr_chembl_te_njs16_27.pth
-    # --albert_checkpoint  ... 37 ,47
 
-#Exp3 : train combined-> test on literature dataset
+#Exp3 :Zero-shot microbiome-human MPI:
 # --train_datapath Data/Combined/activities/combined_all/train_300.tsv \
 # --dev_datapath Data/Combined/activities/combined_all/dev_300.tsv \
 # --test_datapath Data/TestingSetFromPaper/activities_nolipids.txt \

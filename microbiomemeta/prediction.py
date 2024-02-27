@@ -14,7 +14,8 @@ from rdkit.Chem import MolFromSmiles
 import torch
 from torch_geometric.data import Data
 from transformers import BertTokenizer
-
+import sys
+sys.path.append('/..')
 # -------------
 from microbiomemeta.predictor import Predictor
 from microbiomemeta.utils import load_pairs_from_file
@@ -100,7 +101,7 @@ def set_hyperparameters():
     parser.add_argument(
         "--state_dict_path",
         type=str,
-        default="/raid/home/yoyowu/MicrobiomeMeta/experiment_logs/exp2023-02-14-12-28-00_portalCG_chembl_hmdb47/epoch_89/Portal_tr_chembl_te_hmdb_47.pth",
+        default="/raid/home/yoyowu/DESSML/trained_models/DTI/DTI_fold_1_DISAE_model_state_dict_0.pth",
         help="State dict path for trained DISAE model.",
     )
     parser.add_argument(
@@ -118,20 +119,20 @@ def set_hyperparameters():
     )
     # args for model training and optimization
     parser.add_argument(
-        "--datapath", default="/raid/home/yoyowu/MicrobiomeMeta/Data/ChEMBL29/all_Chembl29.tsv",
+        "--datapath", default="/raid/home/yoyowu/DESSML/Data/DTI/DTI_test_x22102.tsv",
          help="Path to the data to be predicted."
 
     )
     parser.add_argument(
         "--prot2trp_path",
         type=str,
-        default="/raid/home/yoyowu/MicrobiomeMeta/Data/Combined/proteins/triplets_in_my_data_set.pk",
+        default="/raid/home/yoyowu/DESSML/Data/Combined/proteins/triplets_in_my_data_set.pk",
         help="path of the protein id to triplets mapping json file.",
     )
     parser.add_argument(
         "--chm2smiles_path",
         type=str,
-        default="/raid/home/yoyowu/MicrobiomeMeta/Data/Combined/chemicals/combined_compounds.pk",
+        default="/raid/home/yoyowu/DESSML/Data/Combined/chemicals/combined_compounds.pk",
         help="path of the chemical id to SMILES mapping tsv file.",
     )
     parser.add_argument(

@@ -18,8 +18,13 @@ from transformers import AlbertConfig
 # from transformers import AlbertTokenizer
 
 # -------------
+import sys
+#sys.path.append('DESSML/')
+#sys.path.append('DESSML/DISAE/')
+
 from DISAE.models import MolecularGraphCoupler_MC
 from DISAE.trainer import Trainer
+from DISAE.trainer_meta import Trainer_Meta
 from DISAE.utils import (
     load_edges_from_file,
     # load_ikey2smiles,
@@ -132,7 +137,7 @@ def set_hyperparameters():
     parser.add_argument(
         "--albert_checkpoint",
         type=str,
-        default="Data/DISAE_data/albertdata/pretrained_whole_pfam/model.ckpt-1500000",
+        default="/raid/home/yoyowu/DESSML/Data/DISAE_data/albertdata/pretrained_whole_pfam/model.ckpt-1500000",
         help="Checkpoint path for pretrained albert.",
     )
     parser.add_argument(
@@ -163,29 +168,29 @@ def set_hyperparameters():
     # args for model training and optimization
     parser.add_argument(
         "--train_datapath",
-        default="/raid/home/yangliu/MicrobiomeMeta/Data/Combined/activities/chembl_hmdb/chembl_hmdb_combined_w_test.tsv",
+        default="/raid/home/yoyowu/DESSML/Data/Combined/activities/combined_all/train_100.tsv",
         help="Path to the train dataset.",
     )
     parser.add_argument(
         "--dev_datapath",
-        default="/raid/home/yangliu/MicrobiomeMeta/Data/NJS16/activities/Feb_2_23_dev_test/dev_27.tsv",
+        default="/raid/home/yoyowu/DESSML/Data/Combined/activities/combined_all/dev_100.tsv",
         help="Path to the dev dataset.",
     )
     parser.add_argument(
         "--test_datapath",
-        default="/raid/home/yangliu/MicrobiomeMeta/Data/NJS16/activities/Feb_2_23_dev_test/test_27.tsv",
+        default="/raid/home/yoyowu/DESSML/Data/TestingSetFromPaper/activities_nolipids.txt",
         help="Path to the test dataset.",
     )
     parser.add_argument(
         "--prot2trp_path",
         type=str,
-        default="Data/Combined/proteins/triplets_in_my_data_set.pk",
+        default="/raid/home/yoyowu/DESSML/Data/Combined/proteins/triplets_in_my_data_set.pk",
         help="path of the protein id to triplets mapping json file.",
     )
     parser.add_argument(
         "--chm2smiles_path",
         type=str,
-        default="Data/Combined/chemicals/combined_compounds.pk",
+        default="/raid/home/yoyowu/DESSML/Data/Combined/chemicals/combined_compounds.pk",
         help="path of the chemical id to SMILES mapping tsv file.",
     )
     parser.add_argument(
@@ -194,12 +199,11 @@ def set_hyperparameters():
         type=str,
         help="set to continuous and provide pretrained checkpoint",
     )
-    # parser.add_argument(
-    #     "--pretrained_checkpoint_dir",
-    #     default="temp/",
-    #     help="Directory where pretrained checkpoints are saved. "
-    #     "ignored if --from_pretrained_checkpoint is false",
-    # )
+    parser.add_argument(
+        "--pretrained_checkpoint_dir",
+        default=None,
+        help="Directory where pretrained checkpoints are saved. "
+    )
     parser.add_argument("--random_seed", default=705, help="Random seed.")
     parser.add_argument(
         "--epoch", default=3, type=int, help="Number of training epoches (default 50)"
@@ -209,7 +213,7 @@ def set_hyperparameters():
     )
     parser.add_argument(
         "--max_eval_steps",
-        default=1000,
+        default=1,
         type=int,
         help="Max evaluation steps. (nsamples=batch*steps)",
     )
@@ -247,8 +251,13 @@ def set_hyperparameters():
         default=False,
         help="Disables CUDA training.",
     )
+    parser.add_argument("--meta_training", type=bool, default=False, help="Use meta training setup. To implement MAML mentioned in the ablation study")
+    parser.add_argument("--update_step", default=5, type=int, help="Number of meta update steps")
+    parser.add_argument("--global_meta", default=30000, type=int, help="Use global meta training")
+    parser.add_argument("--global_eval_at", default=300, type=int, help="Global evaluation at for meta learning ")
+    parser.add_argument("--task_num", default=5, type=int, help="Number of tasks for meta learning")
     parser.add_argument("--test_run", action="store_true", default=False,help="Use testing setup.")
-
+    parser.add_argument("--exp_id", default="debug_meta_01", help="the run name")
     opt = parser.parse_args()
     if isinstance(opt.frozen_list, str):
         opt.frozen_list = [int(f) for f in opt.frozen_list.split(",")]
@@ -437,7 +446,7 @@ def set_up_data(opt):
     )
 
 
-def set_up_finetuning_models(opt, albertconfig, gin_config, checkpoint_dir):
+def set_up_finetuning_models(opt, albertconfig, gin_config, checkpoint_dir,ckpt_path=None):
     """ Set up the model.
 
     Args:
@@ -482,6 +491,9 @@ def set_up_finetuning_models(opt, albertconfig, gin_config, checkpoint_dir):
     config_path = os.path.join(checkpoint_dir, "config.json")
     save_json(vars(opt), config_path)
     md_logger.info("model configurations saved to {}".format(config_path))
+    if ckpt_path is not None:
+        model.load_state_dict(torch.load(ckpt_path))
+        md_logger.info(f"Model weights loaded from {ckpt_path}")
     if torch.cuda.is_available():
         md_logger.info("Moving model to GPU ...")
         model = model.cuda()
@@ -501,13 +513,18 @@ if __name__ == "__main__":
     checkpoint_dir = set_folders(opt)
     albertconfig = set_up_pretrained_albert(
         opt,
-        data_path="Data/DISAE_data/albertdata/",
+        data_path="/raid/home/yoyowu/DESSML/Data/DISAE_data/albertdata/",
         vocab="vocab/pfam_vocab_triplets.txt",
         config="albertconfig/albert_config_tiny_google.json",
         checkpoint=opt.albert_checkpoint,
         vocab_size=19688,
     )
-    wandb.init(project="microbio_meta",config=opt)
+    wandb.init(project="microbio_meta",config=opt, name = opt.exp_id)
+    wandb.define_metric("dev AUPRC",summary="max")
+    wandb.define_metric("dev AUROC",summary="max")
+    wandb.define_metric("test AUPRC",summary="max")
+    wandb.define_metric("test AUROC",summary="max")
+
     if opt.gnn_type == "gin":
         gin_config = {
             "num_layer": 5,
@@ -521,7 +538,7 @@ if __name__ == "__main__":
 
     torch.set_num_threads(opt.num_threads)
 
-    # ---------- set up data ----------
+    #---------- set up data ----------
     (
         edges,
         train_chem_ids,
@@ -540,31 +557,55 @@ if __name__ == "__main__":
     # ---------- set up fine-tuning models ----------
     md_logger.info("Setting up model...")
     model, berttokenizer = set_up_finetuning_models(
-        opt, albertconfig, gin_config, checkpoint_dir
+        opt, albertconfig, gin_config, checkpoint_dir, opt.pretrained_checkpoint_dir
     )
     md_logger.info("Model successfully set up.")
 
     # -------------------------------------------
     #      set up trainer and evaluator
     # -------------------------------------------
+    if opt.meta_training:
+        print("Using meta training setup.")
+        trainer = Trainer_Meta(
+            model=model,
+            berttokenizer=berttokenizer,
+            batch_size=opt.batch,
+            ckpt_dir=checkpoint_dir,
+            optimizer=opt.optimizer,
+            l2=opt.l2,
+            lr=opt.lr,
+            scheduler=opt.scheduler,
+            chemid2smiles=chemicalid2smiles,
+            chemid2mol=chemicalid2mol,
+            uniprot2triplets=proteinid2triplets,
+            prediction_mode=opt.prediction_mode,
+            protein_embedding_type=opt.protein_embedding_type,
+            freezing_epochs=opt.freezing_epochs,
+            update_step = opt.update_step,
+            global_meta = opt.global_meta,
+            global_eval_at = opt.global_eval_at,
+            task_num = opt.task_num
 
-    trainer = Trainer(
-        model=model,
-        berttokenizer=berttokenizer,
-        epoch=opt.epoch,
-        batch_size=opt.batch,
-        ckpt_dir=checkpoint_dir,
-        optimizer=opt.optimizer,
-        l2=opt.l2,
-        lr=opt.lr,
-        scheduler=opt.scheduler,
-        chemid2smiles=chemicalid2smiles,
-        chemid2mol=chemicalid2mol,
-        uniprot2triplets=proteinid2triplets,
-        prediction_mode=opt.prediction_mode,
-        protein_embedding_type=opt.protein_embedding_type,
-        freezing_epochs=opt.freezing_epochs,
-    )
+        )
+    else:
+        print("Using standard training setup.")
+        trainer = Trainer(
+            model=model,
+            berttokenizer=berttokenizer,
+            epoch=opt.epoch,
+            batch_size=opt.batch,
+            ckpt_dir=checkpoint_dir,
+            optimizer=opt.optimizer,
+            l2=opt.l2,
+            lr=opt.lr,
+            scheduler=opt.scheduler,
+            chemid2smiles=chemicalid2smiles,
+            chemid2mol=chemicalid2mol,
+            uniprot2triplets=proteinid2triplets,
+            prediction_mode=opt.prediction_mode,
+            protein_embedding_type=opt.protein_embedding_type,
+            freezing_epochs=opt.freezing_epochs,
+        )
 
     train_evaluator = Evaluator(
         chemid2smiles=chemicalid2smiles,

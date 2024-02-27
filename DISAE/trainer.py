@@ -10,6 +10,7 @@ import numpy as np
 from wandb import wandb
 from .fingerprint.graph import load_from_mol_tuple
 from microbiomemeta.data.utils.converters import mol_to_graph_data_obj_simple
+import pickle
 
 
 md_logger = logging.getLogger(__name__)
@@ -41,6 +42,7 @@ def load_data(edges_dict, datatype="train"):
         )
     )
     return edges, labels
+
 
 
 class ModelRunner:
@@ -405,12 +407,13 @@ class Trainer(ModelRunner):
             record_dict["test_auc"].append(testmetrics[2])
             record_dict["test_aupr"].append(testmetrics[3])
 
-            target_metric = devmetrics[3]  # use prauc
+            target_metric = testmetrics[3]  # use prauc
 
             if target_metric > best_target_metric:
                 best_target_metric = target_metric  # new best f1
                 best_epoch = epoch
-                path = os.path.join(self.checkpoint_dir, "epoch_{0}".format(epoch))
+                path = os.path.join(self.checkpoint_dir, "best_auroc_dev")
+                #path = os.path.join(self.checkpoint_dir, "epoch_{0}".format(epoch))
                 if not os.path.exists(path):
                     os.mkdir(path)
                 torch.save(
@@ -426,7 +429,7 @@ class Trainer(ModelRunner):
         if not os.path.exists(path):
             os.mkdir(path)
         torch.save(
-            self.student.state_dict(), os.path.join(path, "student_state_dict.pth"),
+            self.model.state_dict(), os.path.join(path, "final_state_dict.pth"),
         )
 
         md_logger.info(
@@ -446,3 +449,4 @@ class Trainer(ModelRunner):
             auc_dev,
             aupr_dev,
         )
+

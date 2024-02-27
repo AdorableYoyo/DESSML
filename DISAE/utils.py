@@ -18,7 +18,10 @@ import logging
 import json
 from sklearn.model_selection import KFold, StratifiedKFold, train_test_split
 from sklearn.utils import shuffle
-
+import random
+import pandas as pd
+from sklearn import metrics
+import pickle
 SEQ_MAX_LEN = 210  # the length of protein sequence
 
 
@@ -439,6 +442,73 @@ def get_mutant_triplets(genesymbol, mutations=None):
     for i in range(len(seq) - 2):
         words.append("".join(seq[i : i + 3]))
     return " ".join(words)
+
+
+
+# =======================================================
+#             metalearning related
+# =======================================================
+def load_pkl(path):
+  with open(path, 'rb') as f:
+    dict = pickle.load(f)
+  return  dict
+
+
+def sample_balanced(s,k_spt,pfam_sampled,train_dict):
+    neg = train_dict[pfam_sampled]['neg_'+s].sample(k_spt,replace=True)
+    pos = train_dict[pfam_sampled]['pos_'+s].sample(k_spt,replace=True)
+    spt = pd.concat((neg,pos))
+    return spt.sample(frac=1)
+
+def sample_minibatch(trainpfam,task_num,k_spt,k_qry,train_dict):
+    batch_pfam_idx = random.sample(range(len(trainpfam)), k = task_num)
+    batch = []
+    for idx in batch_pfam_idx:
+        pfam_sampled = trainpfam[idx]
+        spt =  sample_balanced('spt',k_spt,pfam_sampled,train_dict)
+        qry =  sample_balanced('query',k_qry,pfam_sampled,train_dict)
+        batch.append({'spt':spt,'query':qry})
+    return batch
+
+
+def mix_npfam(trainpfam, mix_n, k_spt, k_qry, train_dict):
+    batch_pfam_idx = random.sample(range(len(trainpfam)), k=mix_n)
+    spts = []
+    qrys = []
+    for idx in batch_pfam_idx:
+        pfam_sampled = trainpfam[idx]
+        spt = sample_balanced('spt', k_spt, pfam_sampled, train_dict)
+        qry = sample_balanced('query', k_qry, pfam_sampled, train_dict)
+        spts.append(spt)
+        qrys.append(qry)
+    #         batch.append({'spt':spt,'qry':qry})
+    SPT = pd.concat(spts).sample(frac=1)
+    QRY = pd.concat(qrys).sample(frac=1)
+    mixset = {}
+    mixset['spt'] = SPT
+    mixset['query'] = QRY
+
+    return mixset
+
+def sample_minibatch_mixscaf(trainpfam,task_num,mix_n,k_spt,k_qry,train_dict):
+    batch =[]
+    for i in range(task_num):
+        mixset = mix_npfam(trainpfam,mix_n,k_spt,k_qry,train_dict)
+        batch.append(mixset)
+    return batch
+
+def meta_evaluate_binary_predictions(label, predprobs):
+    probs = np.array(predprobs)
+    predclass = np.argmax(probs, axis=1)
+
+    f1 = metrics.f1_score(label, predclass, average='weighted')
+    fpr, tpr, thresholds = metrics.roc_curve(label, probs[:, 1], pos_label=1)
+    auc = metrics.auc(fpr, tpr)
+    prec, reca, thresholds = metrics.precision_recall_curve(label, probs[:, 1], pos_label=1)
+    aupr = metrics.auc(reca, prec)
+
+    overall = [f1,auc,aupr]
+    return overall
 
 
 if __name__ == "__main__":
