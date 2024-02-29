@@ -91,15 +91,15 @@ To run Experiment 1 in Stage 2 with semi-supervised training, follow these addit
 
 with the following parameters:
 --ul_datapath Data/DTI/DTI_target_sam_unlabeled_x53502.tsv
---albert_checkpoint trained_model/stage1_trained/DTI_fold_1_DISAE_model_state_dict_0.pth
+--albert_checkpoint Data/trained_model/stage1_trained/DTI_fold_1_DISAE_model_state_dict_0.pth
 
-Note: trained_model/stage2_trained/DTI_fold_1_ours.pth is from the stage 1. It was renamed from something like : experiment_logs/exp2023-xxxxxxxx /epoch_xx/student_state_dict.pth \
+Note: Data/trained_model/stage2_trained/DTI_fold_1_ours.pth is from the stage 1. It was renamed from something like : experiment_logs/exp2023-xxxxxxxx /epoch_xx/student_state_dict.pth \
 
 1. Repeat the above steps three times, using the ALBERT checkpoint corresponding to each fold (1,2,3) for cross-validation.
 2. Take the average score across the three repetitions as the final score.
 
 
-## **Experiment 2: Train on ChEMBL and Test on HMDB**
+## **Experiment 2: Hidden human MPI**
 
 ### **Stage 1:**
 
@@ -135,9 +135,9 @@ To run Experiment 2 in Stage 2 with semi-supervised training, follow these addit
 
 with the following parameters:
 --ul_datapath Data/new_unlabeled_data_2023/hmdb_target_sample.tsv \
---albert_checkpoint trained_model/stage1_trained/DISAE_tr_chembl_te_hmdb_47.pth
+--albert_checkpoint Data/trained_model/stage1_trained/DISAE_tr_chembl_te_hmdb_47.pth
 
-Note: trained_model/stage1_trained/DISAE_tr_chembl_te_hmdb_47.pth is from the stage 1. It was renamed from something like :  experiment_logs/exp2023-xxxxxxxx /epoch_xx/student_state_dict.pth \ \
+Note: Data/trained_model/stage1_trained/DISAE_tr_chembl_te_hmdb_47.pth is from the stage 1. It was renamed from something like :  experiment_logs/exp2023-xxxxxxxx /epoch_xx/student_state_dict.pth \ \
 
 1. Repeat the above steps three times, using the ALBERT checkpoint corresponding to each fold (27, 37, and 47) for cross-validation.
 2. Take the average score across the three repetitions as the final score.
@@ -179,7 +179,7 @@ To run Experiment 1 in Stage 2 with semi-supervised training, follow these addit
 
 with the following parameters:
 --ul_datapath Data/new_unlabeled_data_2023/all_gpcr_and_other_proteins_all_chem_pairs.tsv
---albert_checkpoint trained_model/stage1_trained/DISAE_tr_combined_te_paper_300.pth
+--albert_checkpoint Data/trained_model/stage1_trained/DISAE_tr_combined_te_paper_300.pth
 
 1. Repeat the above steps three times, using the ALBERT checkpoint corresponding to each fold(100, 200, and 300) for cross-validation.
 2. Take the average score across the three repetitions as the final score.
@@ -192,7 +192,7 @@ To use the trained model to predict on desired dataset, simply run :
 bash run_scripts/prediction.sh
 ```
 
-- -state_dict_path trained_model/[xxxxx desired trained model ]
+- -state_dict_path Data/trained_model/[xxxxx desired trained model ]
 --datapath [desired data to be predicted]
 - — get_embeddings could be added to get chemical embeddings instead of the final prediction.
 
