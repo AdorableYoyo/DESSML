@@ -8,7 +8,8 @@ MMAPLE is a a semi-supervised meta learning framework to address these challenge
 ![alt text](model_detail.png "system overview")
 
 # Data download
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7915982.svg)](https://doi.org/10.5281/zenodo.7915982)
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10728882.svg)](https://doi.org/10.5281/zenodo.10728882)
 
 
 # **Getting Started**
