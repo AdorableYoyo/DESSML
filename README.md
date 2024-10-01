@@ -1,7 +1,11 @@
 #  🍁MMAPLE🍁 - a semi-supervised meta learning framework - Meta Model Agnostic Pseudo Label Learning
 MMAPLE is a a semi-supervised meta learning framework to address these challenges by effectively exploring out-of-distribution (OOD) unlabeled data. The power of MMAPLE is demonstrated in multiple applications: predicting OOD drug-target interactions, hidden human metabolite-enzyme interactions, and understudied interspecies microbiome metabolite-human receptor interactions, where chemicals in unseen data are dramatically different from those in training data. MMAPLE achieves 11\% to 242\% improvement in the prediction-recall on multiple OOD benchmarks over baseline models. Using MMAPLE, we reveal novel interspecies metabolite-protein interactions that are validated by bioactivity assays and fill in missing links in microbiome-human interactions. MMAPLE is a general framework to explore previously unrecognized biological domains beyond the reach of present experimental and computational techniques.
 
+[read the paper here](https://www.nature.com/articles/s42003-024-06797-z)
+
+
 <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+
 
 # Architecture
 
@@ -197,6 +201,17 @@ bash run_scripts/prediction.sh
 --datapath [desired data to be predicted]
 - — get_embeddings could be added to get chemical embeddings instead of the final prediction.
 
-## **Author**
+## **Author and citation**
 
 - **You Wu, Li Xie, Yang Liu, Lei Xie**
+```
+  @article{wu2024semi,
+  title={Semi-supervised meta-learning elucidates understudied molecular interactions},
+  author={Wu, You and Xie, Li and Liu, Yang and Xie, Lei},
+  journal={Communications Biology},
+  volume={7},
+  number={1},
+  pages={1104},
+  year={2024},
+  publisher={Nature Publishing Group UK London}
+```
